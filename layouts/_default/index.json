@@ -1,0 +1,13 @@
+[
+  {{- $pages := where .Site.RegularPages "Type" "!=" "json" -}}
+  {{- $pages = where $pages "Params.hidden" "!=" true -}}
+  {{- range $index, $page := $pages -}}
+    {{- if gt $index 0 -}} , {{- end -}}
+    {
+      "title": {{ $page.Title | jsonify }},
+      "content": {{ $page.Plain | jsonify }},
+      "permalink": {{ $page.RelPermalink | jsonify }},
+      "summary": {{ $page.Summary | plainify | jsonify }}
+    }
+  {{- end -}}
+]

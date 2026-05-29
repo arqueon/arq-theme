@@ -9,38 +9,48 @@
   </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <!-- Card 1 -->
-  <div class="card bg-base-100 shadow-xl border border-base-200">
-    <div class="card-body">
-      <h2 class="card-title">Ingeniería</h2>
-      <p>Desarrollo de software de alto rendimiento y consultoría avanzada.</p>
-      <div class="card-actions justify-end mt-4">
-        <button class="btn btn-outline btn-sm">Ver servicios</button>
-      </div>
-    </div>
+<!-- Sticky Stacking Cards Section -->
+<div class="max-w-5xl mx-auto px-4 pb-[50vh] mt-20 relative">
+  <!-- Título Sticky -->
+  <div class="sticky top-0 pt-4 pb-8 z-50 bg-base-100">
+    <h2 class="text-4xl font-bold text-center">Efecto Stacking Dinámico</h2>
   </div>
   
-  <!-- Card 2 -->
-  <div class="card bg-base-100 shadow-xl border border-base-200">
-    <div class="card-body">
-      <h2 class="card-title">Entrenamiento</h2>
-      <p>Cursos inmersivos en Go, Rust, y Arquitectura de Sistemas.</p>
-      <div class="card-actions justify-end mt-4">
-        <button class="btn btn-outline btn-sm">Explorar cursos</button>
+  {{ $pages := where .Site.RegularPages "Type" "!=" "json" }}
+  {{ range $index, $page := first 3 $pages }}
+  
+  <!-- Todas las tarjetas tienen top-32 para que frenen en el mismo punto y se cubran al 100% -->
+  {{ $zClass := print "z-" (mul (add $index 1) 10) }}
+
+  <div class="sticky top-32 {{ $zClass }} transition-transform duration-300 mb-8">
+    <div class="card md:card-side bg-base-100 shadow-2xl border border-base-content/10 min-h-[400px]">
+      <div class="card-body md:w-1/2 justify-center p-8 md:p-10">
+        <h3 class="text-xl italic text-base-content/70 mb-2">
+          {{ if .Params.categories }}{{ index .Params.categories 0 }}{{ else }}Artículo{{ end }}
+        </h3>
+        <h2 class="text-4xl font-bold leading-tight mb-6">{{ .Title }}</h2>
+        <p class="text-lg text-base-content/80 mb-8 flex-grow-0">{{ .Summary | plainify | truncate 150 }}</p>
+        <div class="card-actions justify-start">
+          <a href="{{ .RelPermalink }}" class="btn btn-outline btn-lg rounded-full px-8">
+            Leer más 
+          </a>
+        </div>
       </div>
+      <figure class="md:w-1/2 p-6 md:pl-0 w-full h-auto bg-base-100">
+        <img src="https://placehold.co/800x600/1a1138/06b6d4?text={{ .Title | urlize }}" alt="{{ .Title }}" class="rounded-xl shadow-lg object-cover h-full w-full" />
+      </figure>
     </div>
   </div>
+  {{ end }}
+</div>
 
-  <!-- Card 3 -->
-  <div class="card bg-base-100 shadow-xl border border-base-200">
-    <div class="card-body">
-      <h2 class="card-title">Comunidad</h2>
-      <p>Únete a nuestra red global de ingenieros de software.</p>
-      <div class="card-actions justify-end mt-4">
-        <button class="btn btn-outline btn-sm">Unirme</button>
-      </div>
-    </div>
+<!-- Nueva Sección Oscura de Prueba -->
+<div class="w-full bg-neutral text-neutral-content py-40">
+  <div class="max-w-5xl mx-auto px-4 text-center">
+    <h2 class="text-5xl font-bold mb-8">Siguiente Sección</h2>
+    <p class="text-xl opacity-80 max-w-2xl mx-auto">
+      Al terminar el contenedor de las tarjetas apilables, esta sección debe empujar el bloque completo hacia arriba de manera limpia y sin encimarse.
+    </p>
   </div>
 </div>
 {{ end }}

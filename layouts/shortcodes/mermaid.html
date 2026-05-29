@@ -1,0 +1,9 @@
+<div class="mermaid flex justify-center my-8 bg-base-200 p-4 rounded-box shadow-sm">
+  {{ .Inner }}
+</div>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  // Configuración para que el tema de mermaid se adapte al tema oscuro/claro
+  const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.getAttribute('data-theme') === 'dracula';
+  mermaid.initialize({ startOnLoad: true, theme: isDarkMode ? 'dark' : 'default' });
+</script>

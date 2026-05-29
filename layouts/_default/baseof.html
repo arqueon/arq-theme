@@ -14,10 +14,95 @@
 <body class="antialiased min-h-screen flex flex-col">
   {{ partial "header.html" . }}
   
-  <main class="flex-grow container mx-auto px-4 py-8">
+  <main class="flex-grow w-full max-w-[1400px] mx-auto px-4 py-8">
     {{ block "main" . }}{{ end }}
   </main>
   
   {{ partial "footer.html" . }}
+
+  <!-- Search Modal -->
+  <dialog id="search_modal" class="modal">
+    <div class="modal-box p-0 max-w-2xl bg-base-100/90 backdrop-blur-md border border-base-content/10 shadow-2xl">
+      <div class="p-4 border-b border-base-content/10 relative">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 absolute left-6 top-1/2 -translate-y-1/2 opacity-50"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+        <input type="text" id="search_input" placeholder="Search..." class="input input-ghost w-full pl-12 text-lg focus:outline-none focus:bg-transparent" autocomplete="off" />
+      </div>
+      <ul id="search_results" class="menu w-full p-4 max-h-96 overflow-y-auto hidden">
+        <!-- Results will be injected here -->
+      </ul>
+      <div id="search_empty" class="p-8 text-center opacity-50 hidden">No results found.</div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+  <script>
+    let fuse;
+    const modal = document.getElementById('search_modal');
+    const searchInput = document.getElementById('search_input');
+    const resultsContainer = document.getElementById('search_results');
+    const emptyContainer = document.getElementById('search_empty');
+
+    // Fetch index.json on first click/focus
+    async function initSearch() {
+      if (fuse) return;
+      const res = await fetch('/index.json');
+      const data = await res.json();
+      const options = {
+        keys: ['title', 'content'],
+        threshold: 0.3,
+        ignoreLocation: true
+      };
+      fuse = new Fuse(data, options);
+    }
+
+    // Handle search input
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value;
+      if (!query) {
+        resultsContainer.innerHTML = '';
+        resultsContainer.classList.add('hidden');
+        emptyContainer.classList.add('hidden');
+        return;
+      }
+      
+      const results = fuse.search(query);
+      
+      if (results.length === 0) {
+        resultsContainer.classList.add('hidden');
+        emptyContainer.classList.remove('hidden');
+      } else {
+        emptyContainer.classList.add('hidden');
+        resultsContainer.classList.remove('hidden');
+        resultsContainer.innerHTML = results.slice(0, 5).map(result => `
+          <li>
+            <a href="${result.item.permalink}" class="flex flex-col items-start py-3">
+              <span class="font-bold text-lg">${result.item.title}</span>
+              <span class="text-sm opacity-70 line-clamp-2">${result.item.summary || result.item.content.substring(0, 100) + '...'}</span>
+            </a>
+          </li>
+        `).join('');
+      }
+    });
+
+    // Keyboard shortcut Cmd+K / Ctrl+K
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        initSearch();
+        modal.showModal();
+      }
+    });
+
+    // Reset when closed
+    modal.addEventListener('close', () => {
+      searchInput.value = '';
+      resultsContainer.innerHTML = '';
+      resultsContainer.classList.add('hidden');
+      emptyContainer.classList.add('hidden');
+    });
+  </script>
 </body>
 </html>

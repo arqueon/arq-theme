@@ -1,0 +1,46 @@
+{{ define "main" }}
+<article class="max-w-4xl mx-auto py-12 px-4 prose lg:prose-xl">
+  <header class="mb-10 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ .Title }}</h1>
+    {{ if .Date }}
+    <div class="text-base-content/60 text-sm mb-4">
+      {{ .Date.Format "January 2, 2006" }}
+    </div>
+    {{ end }}
+    {{ if .Params.categories }}
+    <div class="flex justify-center gap-2 mb-4">
+      {{ range .Params.categories }}
+      <a href="/categories/{{ . | urlize }}" class="badge badge-primary">{{ . }}</a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </header>
+  
+  <div class="bg-base-100 p-8 rounded-box shadow-xl border border-base-content/10">
+    {{ if .Summary }}
+    <p class="text-2xl font-light leading-relaxed text-base-content/80 mb-8 pb-8 border-b border-base-content/10">
+      {{ .Summary }}
+    </p>
+    {{ end }}
+    
+    <div class="prose lg:prose-xl max-w-none">
+      {{ .Content }}
+    </div>
+    
+    {{ if .Params.tags }}
+    <div class="mt-12 pt-8 border-t border-base-content/10">
+      <h3 class="text-lg font-bold mb-4">Etiquetas:</h3>
+      <div class="flex flex-wrap gap-2">
+        {{ range .Params.tags }}
+        <a href="/tags/{{ . | urlize }}" class="badge badge-outline">{{ . }}</a>
+        {{ end }}
+      </div>
+    </div>
+    {{ end }}
+  </div>
+  
+  <div class="mt-12 text-center">
+    <a href="/" class="btn btn-outline btn-sm">← Volver al Inicio</a>
+  </div>
+</article>
+{{ end }}
