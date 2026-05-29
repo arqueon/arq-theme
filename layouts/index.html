@@ -28,7 +28,17 @@
         <h3 class="text-xl italic text-base-content/70 mb-2">
           {{ if .Params.categories }}{{ index .Params.categories 0 }}{{ else }}Artículo{{ end }}
         </h3>
-        <h2 class="text-4xl font-bold leading-tight mb-6">{{ .Title }}</h2>
+        <h2 class="text-4xl font-bold leading-tight mb-4">{{ .Title }}</h2>
+        
+        <!-- Etiquetas (Tags) en la tarjeta principal -->
+        {{ if .Params.tags }}
+        <div class="flex flex-wrap gap-2 mb-6">
+          {{ range .Params.tags }}
+          <span class="badge badge-outline">{{ . }}</span>
+          {{ end }}
+        </div>
+        {{ end }}
+
         <p class="text-lg text-base-content/80 mb-8 flex-grow-0">{{ .Summary | plainify | truncate 150 }}</p>
         <div class="card-actions justify-start">
           <a href="{{ .RelPermalink }}" class="btn btn-outline btn-lg rounded-full px-8">
@@ -37,20 +47,53 @@
         </div>
       </div>
       <figure class="md:w-1/2 p-6 md:pl-0 w-full h-auto bg-base-100">
-        <img src="https://placehold.co/800x600/1a1138/06b6d4?text={{ .Title | urlize }}" alt="{{ .Title }}" class="rounded-xl shadow-lg object-cover h-full w-full" />
+        {{ $featuredImg := .Resources.GetMatch "*featured*" }}
+        <img src="{{ if $featuredImg }}{{ $featuredImg.RelPermalink }}{{ else }}https://placehold.co/800x600/1a1138/06b6d4?text={{ .Title | urlize }}{{ end }}" alt="{{ .Title }}" class="rounded-xl shadow-lg object-cover h-full w-full" />
       </figure>
     </div>
   </div>
   {{ end }}
 </div>
 
-<!-- Nueva Sección Oscura de Prueba -->
-<div class="w-full bg-neutral text-neutral-content py-40">
-  <div class="max-w-5xl mx-auto px-4 text-center">
-    <h2 class="text-5xl font-bold mb-8">Siguiente Sección</h2>
-    <p class="text-xl opacity-80 max-w-2xl mx-auto">
-      Al terminar el contenedor de las tarjetas apilables, esta sección debe empujar el bloque completo hacia arriba de manera limpia y sin encimarse.
-    </p>
+<!-- Sección de Noticias (News) - Tarjetas pequeñas a 2 columnas con imagen a la derecha -->
+<div class="w-full bg-base-200 py-32">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="text-3xl font-bold mb-12 border-b border-base-content/10 pb-4">Últimas Noticias</h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {{ range .Site.RegularPages }}
+      
+      <div class="card card-side bg-base-100 shadow-md hover:shadow-xl transition-shadow border border-base-content/5 overflow-hidden h-48 group">
+        <!-- Texto a la izquierda -->
+        <div class="card-body w-2/3 p-6 justify-center">
+          <h3 class="text-xs font-bold uppercase tracking-widest text-primary mb-1">
+            {{ if .Params.categories }}{{ index .Params.categories 0 }}{{ else }}Novedad{{ end }}
+          </h3>
+          <h2 class="card-title text-lg mb-2 group-hover:text-primary transition-colors">
+            <a href="{{ .RelPermalink }}" class="before:absolute before:inset-0">{{ .Title }}</a>
+          </h2>
+          <p class="text-sm text-base-content/60 line-clamp-2 mb-4">{{ .Summary | plainify }}</p>
+          
+          <!-- Etiquetas en la tarjeta pequeña -->
+          {{ if .Params.tags }}
+          <div class="flex flex-wrap gap-1 mt-auto relative z-10">
+            {{ range first 3 .Params.tags }}
+            <a href="/tags/{{ . | urlize }}" class="badge badge-xs badge-ghost hover:bg-base-300">{{ . }}</a>
+            {{ end }}
+          </div>
+          {{ end }}
+        </div>
+        
+        <!-- Imagen a la derecha alineada al borde -->
+        <figure class="w-1/3 bg-base-300 relative">
+          {{ $thumb := .Resources.GetMatch "*featured*" }}
+          <img src="{{ if $thumb }}{{ $thumb.RelPermalink }}{{ else }}https://placehold.co/400x400/0a1628/3b82f6?text=News{{ end }}" alt="{{ .Title }}" class="h-full w-full object-cover" />
+        </figure>
+      </div>
+
+      {{ end }}
+    </div>
+    
   </div>
 </div>
 {{ end }}
