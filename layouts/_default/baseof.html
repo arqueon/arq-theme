@@ -10,6 +10,13 @@
     {{ $css = $css | minify | fingerprint | resources.PostProcess }}
   {{ end }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+  <!-- Theme Initialization to prevent FOUC -->
+  <script>
+    (function() {
+      const storedTheme = localStorage.getItem('theme') || 'corporate';
+      document.documentElement.setAttribute('data-theme', storedTheme);
+    })();
+  </script>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
   {{ partial "header.html" . }}
@@ -102,6 +109,29 @@
       resultsContainer.innerHTML = '';
       resultsContainer.classList.add('hidden');
       emptyContainer.classList.add('hidden');
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const storedTheme = localStorage.getItem('theme') || 'corporate';
+      const themeRadios = document.querySelectorAll('.theme-controller');
+      
+      // Marcar el radio button correcto al cargar la página
+      themeRadios.forEach(radio => {
+        if (radio.value === storedTheme) {
+          radio.checked = true;
+        }
+        
+        // Escuchar cambios para guardarlos y aplicarlos dinámicamente
+        radio.addEventListener('change', (e) => {
+          if (e.target.checked) {
+            const newTheme = e.target.value;
+            localStorage.setItem('theme', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+          }
+        });
+      });
     });
   </script>
 </body>
