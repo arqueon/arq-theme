@@ -1,96 +1,107 @@
 {{ define "main" }}
 {{ $featured := .Resources.GetMatch "*featured*" }}
-{{ $showHero := .Params.showHero | default true }}
-{{ $heroStyle := .Params.heroStyle | default "basic" }}
 
-<article class="max-w-4xl mx-auto py-12 px-4">
-  
-  {{ if .Params.showBreadcrumbs }}
-  <div class="text-sm breadcrumbs text-base-content/60 mb-6">
-    <ul>
-      <li><a href="/">Inicio</a></li>
-      <li><a href="{{ .Parent.RelPermalink }}">{{ .Parent.Title }}</a></li>
-      <li>{{ .Title }}</li>
-    </ul>
+<article class="w-full">
+  <!-- Cabecera Oscura Full Width -->
+  <div class="bg-neutral text-neutral-content w-full pt-20 pb-16">
+    <div class="max-w-6xl mx-auto px-4">
+      
+      {{ if .Params.showBreadcrumbs }}
+      <div class="text-sm breadcrumbs text-neutral-content/60 mb-6">
+        <ul>
+          <li><a href="/">Inicio</a></li>
+          {{ if .Parent }}<li><a href="{{ .Parent.RelPermalink }}">{{ .Parent.Title }}</a></li>{{ end }}
+          <li>{{ .Title }}</li>
+        </ul>
+      </div>
+      {{ end }}
+
+      <div class="flex flex-wrap gap-2 mb-6">
+        {{ range .Params.categories }}
+        <span class="badge badge-primary">{{ . }}</span>
+        {{ end }}
+      </div>
+
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight max-w-4xl">
+        {{ .Title }}
+      </h1>
+
+      <div class="flex items-center gap-4 text-neutral-content/80 text-sm">
+        <div class="avatar placeholder">
+          <div class="bg-neutral-focus text-neutral-content rounded-full w-12">
+            <span>{{ substr (.Params.author | default "Ardan") 0 1 }}</span>
+          </div>
+        </div>
+        <div>
+          <p class="font-bold text-base">{{ .Params.author | default "Autor Oficial" }}</p>
+          <div class="flex gap-4">
+            {{ if .Date }}<span>{{ .Date.Format "January 2, 2006" }}</span>{{ end }}
+            {{ if .Params.showReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Imagen Principal (fuera de la cabecera oscura si existe) -->
+  {{ if $featured }}
+  <div class="max-w-6xl mx-auto px-4 -mt-8 relative z-10">
+    <figure class="w-full rounded-2xl overflow-hidden shadow-2xl bg-base-100">
+      <img src="{{ $featured.RelPermalink }}" alt="{{ .Title }}" class="w-full h-auto max-h-[600px] object-cover" />
+    </figure>
   </div>
   {{ end }}
 
-  <!-- Header Section -->
-  <header class="mb-10 text-center relative rounded-box overflow-hidden {{ if and $featured (eq $heroStyle "background") }}bg-base-300 text-white py-32 shadow-2xl{{ end }}">
+  <!-- Contenedor Principal (Texto + Sidebar) -->
+  <div class="max-w-6xl mx-auto px-4 py-16 flex flex-col lg:flex-row gap-16">
     
-    {{ if and $featured (eq $heroStyle "background") }}
-    <!-- Hero Background Image con Overlay -->
-    <img src="{{ $featured.RelPermalink }}" alt="{{ .Title }}" class="absolute inset-0 w-full h-full object-cover z-0" />
-    <div class="absolute inset-0 bg-black/60 z-10"></div>
-    {{ end }}
-    
-    <div class="relative z-20 {{ if not (eq $heroStyle "background") }}pt-10{{ end }}">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ .Title }}</h1>
-      
-      <div class="text-base-content/70 text-sm mb-4 flex justify-center gap-4">
-        {{ if .Date }}<span>🗓️ {{ .Date.Format "02 Ene 2006" }}</span>{{ end }}
-        {{ if .Params.showReadingTime }}<span>⏱️ {{ .ReadingTime }} min lectura</span>{{ end }}
-      </div>
-
-      {{ if .Params.categories }}
-      <div class="flex justify-center gap-2 mb-4">
-        {{ range .Params.categories }}
-        <a href="/categories/{{ . | urlize }}" class="badge badge-primary">{{ . }}</a>
-        {{ end }}
-      </div>
+    <!-- Columna de Contenido (Izquierda) -->
+    <div class="lg:w-2/3">
+      {{ if and .Params.showSummary .Summary }}
+      <p class="text-2xl font-light leading-relaxed text-base-content/80 mb-10 pb-10 border-b border-base-content/10">
+        {{ .Summary }}
+      </p>
       {{ end }}
-    </div>
-  </header>
-
-  <div class="bg-base-100 p-8 md:p-12 rounded-box shadow-xl border border-base-content/10">
-    
-    {{ if and $featured (eq $heroStyle "basic") }}
-    <!-- Hero Basic Image -->
-    <figure class="mb-10 w-full rounded-box overflow-hidden shadow-lg">
-      <img src="{{ $featured.RelPermalink }}" alt="{{ .Title }}" class="w-full h-auto object-cover" />
-    </figure>
-    {{ end }}
-
-    {{ if and .Params.showSummary .Summary }}
-    <p class="text-2xl font-light leading-relaxed text-base-content/80 mb-8 pb-8 border-b border-base-content/10">
-      {{ .Summary }}
-    </p>
-    {{ end }}
-    
-    <!-- Contenedor con TOC (Tabla de Contenidos) y Contenido -->
-    <div class="flex flex-col lg:flex-row gap-10">
       
-      <div class="prose lg:prose-xl max-w-none flex-grow">
+      <div class="prose prose-lg md:prose-xl max-w-none prose-a:text-primary">
         {{ .Content }}
       </div>
 
-      {{ if and .Params.showTableOfContents .TableOfContents }}
-      <aside class="hidden lg:block w-64 flex-shrink-0">
-        <div class="sticky top-24 bg-base-200/50 p-6 rounded-box">
-          <h3 class="font-bold mb-4 uppercase tracking-wider text-sm text-base-content/70">Contenido</h3>
-          <div class="prose prose-sm prose-a:no-underline">
-            {{ .TableOfContents }}
-          </div>
+      <!-- Etiquetas clickeables -->
+      {{ if .Params.tags }}
+      <div class="mt-16 pt-8 border-t border-base-content/10">
+        <h3 class="text-lg font-bold mb-4 text-base-content/60 uppercase tracking-widest">Etiquetas</h3>
+        <div class="flex flex-wrap gap-2">
+          {{ range .Params.tags }}
+          <a href="/tags/{{ . | urlize }}" class="badge badge-lg badge-outline hover:bg-base-200 transition-colors cursor-pointer relative z-20">{{ . }}</a>
+          {{ end }}
         </div>
-      </aside>
-      {{ end }}
-      
-    </div>
-    
-    {{ if .Params.tags }}
-    <div class="mt-12 pt-8 border-t border-base-content/10">
-      <h3 class="text-lg font-bold mb-4">Etiquetas:</h3>
-      <div class="flex flex-wrap gap-2">
-        {{ range .Params.tags }}
-        <a href="/tags/{{ . | urlize }}" class="badge badge-outline">{{ . }}</a>
-        {{ end }}
       </div>
+      {{ end }}
     </div>
-    {{ end }}
-  </div>
-  
-  <div class="mt-12 text-center">
-    <a href="/" class="btn btn-outline btn-sm">← Volver al Inicio</a>
+
+    <!-- Sidebar (Derecha) -->
+    <aside class="lg:w-1/3 space-y-8">
+      
+      {{ if and .Params.showTableOfContents .TableOfContents }}
+      <div class="sticky top-24 bg-base-200/50 p-8 rounded-2xl border border-base-content/5">
+        <h3 class="font-bold mb-4 uppercase tracking-widest text-sm text-base-content/70">En este artículo</h3>
+        <div class="prose prose-sm prose-a:no-underline prose-a:text-base-content/70 hover:prose-a:text-primary">
+          {{ .TableOfContents }}
+        </div>
+      </div>
+      {{ end }}
+
+      <!-- Espacio para Avisos (Ads/Promos) -->
+      <div class="sticky top-96 bg-primary/10 p-8 rounded-2xl border border-primary/20 text-center">
+        <h3 class="font-bold text-xl mb-4 text-primary">Impulsa tu carrera</h3>
+        <p class="text-sm mb-6 opacity-80">Únete a nuestros programas avanzados de ingeniería en Go y Rust.</p>
+        <button class="btn btn-primary w-full">Ver Entrenamientos</button>
+      </div>
+
+    </aside>
+    
   </div>
 </article>
 {{ end }}
